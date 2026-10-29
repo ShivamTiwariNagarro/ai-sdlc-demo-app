@@ -56,15 +56,15 @@
 
 ### Tests for User Story 2
 
-- [ ] T011 [US2] Add xUnit cases in `backend/tests/InvoiceApp.Tests/ApprovalServiceTests.cs` for both eligible first approver roles, distinct Director completion, same-user refusal, Manager-as-second refusal, state preservation for refused approval attempts, and concurrent same-invoice attempts against the latest state.
+- [x] T011 [US2] Add xUnit cases in `backend/tests/InvoiceApp.Tests/ApprovalServiceTests.cs` for both eligible first approver roles, distinct Director completion, same-user refusal, Manager-as-second refusal, state preservation for refused approval attempts, and concurrent same-invoice attempts against the latest state.
 
 ### Implementation for User Story 2
 
-- [ ] T012 [US2] Add an immutable approval record and ordered approval collection to `backend/src/InvoiceApp.Domain/Invoice.cs`, preserving the data-model constraints: approval username is distinct per invoice, role is Manager or Director, sequence starts at 1, and approval time is recorded.
-- [ ] T013 [US2] Implement the high-value transitions in `backend/src/InvoiceApp.Domain/ApprovalService.cs`: amounts above 500,000 require a first Manager or Director approval and a second approval from a different Director; only the second approval sets Approved, DecidedBy, and DecidedAt.
-- [ ] T014 [US2] Route approval validation and state changes through the atomic repository operation implemented in `backend/src/InvoiceApp.Domain/IInvoiceRepository.cs`, `backend/src/InvoiceApp.Api/InMemoryInvoiceRepository.cs`, and `backend/tests/InvoiceApp.Tests/FakeInvoiceRepository.cs`; refuse invalid or duplicate approval attempts without changing any invoice field or approval record.
-- [ ] T015 [US2] Run `dotnet test backend/InvoiceApp.sln` and verify all Step B high-value, role, identity, immutability, and concurrency cases pass.
-- [ ] T016 [US2] Commit the independently tested Step B changes in `backend/src/InvoiceApp.Domain/Invoice.cs`, `backend/src/InvoiceApp.Domain/ApprovalService.cs`, `backend/src/InvoiceApp.Domain/IInvoiceRepository.cs`, `backend/src/InvoiceApp.Api/InMemoryInvoiceRepository.cs`, and `backend/tests/InvoiceApp.Tests/`.
+- [x] T012 [US2] Add an immutable approval record and ordered approval collection to `backend/src/InvoiceApp.Domain/Invoice.cs`, preserving the data-model constraints: approval username is distinct per invoice, role is Manager or Director, sequence starts at 1, and approval time is recorded.
+- [x] T013 [US2] Implement the high-value transitions in `backend/src/InvoiceApp.Domain/ApprovalService.cs`: amounts above 500,000 require a first Manager or Director approval and a second approval from a different Director; only the second approval sets Approved, DecidedBy, and DecidedAt.
+- [x] T014 [US2] Route approval validation and state changes through the atomic repository operation implemented in `backend/src/InvoiceApp.Domain/IInvoiceRepository.cs`, `backend/src/InvoiceApp.Api/InMemoryInvoiceRepository.cs`, and `backend/tests/InvoiceApp.Tests/FakeInvoiceRepository.cs`; refuse invalid or duplicate approval attempts without changing any invoice field or approval record.
+- [x] T015 [US2] Run `dotnet test backend/InvoiceApp.sln` and verify all Step B high-value, role, identity, immutability, and concurrency cases pass.
+- [x] T016 [US2] Commit the independently tested Step B changes in `backend/src/InvoiceApp.Domain/Invoice.cs`, `backend/src/InvoiceApp.Domain/ApprovalService.cs`, `backend/src/InvoiceApp.Domain/IInvoiceRepository.cs`, `backend/src/InvoiceApp.Api/InMemoryInvoiceRepository.cs`, and `backend/tests/InvoiceApp.Tests/`.
 
 **Checkpoint**: Step B is independently tested and committed with the two-distinct-approver flow.
 

@@ -77,6 +77,7 @@ internal class FakeInvoiceRepository : IInvoiceRepository
             CreatedAt = invoice.CreatedAt,
             DecidedBy = invoice.DecidedBy,
             DecidedAt = invoice.DecidedAt,
-            DecisionNote = invoice.DecisionNote
+            DecisionNote = invoice.DecisionNote,
+            Approvals = invoice.Approvals.ToList()
         };
 }
