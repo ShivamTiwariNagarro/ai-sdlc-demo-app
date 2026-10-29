@@ -9,7 +9,7 @@ Use this skill to review the requested pull request diff and judge each finding.
 
 ## Review checklist
 
-- Verify the approval roles are Manager and Director, and that Admin cannot count. Do not assume the API's existing `Approver` role maps to either business role; check that identity, role flow, and authorization support the specified roles.
+- Verify the approval roles are Manager and Director. Admin does not count as an approver. The legacy `Approver` role also cannot approve; do not assume it maps to either business role. Check that identity, role flow, and authorization support the specified roles.
 - Check each approval rule, including role-specific limits and inclusive boundaries.
 - Check the two-approver flow above 500,000, distinct user identities, and that the second approver is a Director.
 - Check that rejected attempts leave invoice status and recorded approvals unchanged.

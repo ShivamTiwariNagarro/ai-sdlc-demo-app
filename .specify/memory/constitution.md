@@ -59,7 +59,7 @@ generic role examples.
   state preservation on rejected operations.
 - The full suite, `dotnet test backend/InvoiceApp.sln`, MUST pass before a
   commit.
-- Review findings in pull request descriptions MUST each have one disposition:
+- Review findings in pull request descriptions MUST each have one verdict:
   fixed, dismissed with a reason, or deferred with a reason.
 - Interaction logs MUST be reviewed for sensitive data before sharing or
   committing them.
