@@ -1,50 +1,78 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+Version change: uninitialized template -> 1.0.0
+Modified principles: none; this is the initial project constitution.
+Added sections: five core principles, project constraints, development workflow,
+and governance.
+Removed sections: none.
+Follow-up TODO: confirm the original ratification date.
+-->
+
+# Invoice Approval Demo App Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Domain-Owned Business Rules
+All invoice business rules MUST live in `InvoiceApp.Domain`. Controllers and
+`Program.cs` MUST NOT implement business rules. This keeps policy independent of
+the web and hosting layers and testable without infrastructure.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Rule-Level Unit Tests
+Every business rule MUST have positive and negative unit tests using
+`FakeInvoiceRepository`; boundary conditions MUST also be tested. Approval
+threshold tests MUST cover the exact 50,000 and 500,000 limits and amounts just
+above them. Tests MUST verify the required outcome and clear rejection reason.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Validate Before Mutating State
+An action MUST validate all applicable rules before changing invoice state or
+recording approvals. A rejected action MUST leave the invoice status and
+recorded approvals unchanged.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Credential Safety
+Real credentials, tokens, and customer data MUST NOT be committed. Demo
+credentials are not real credentials, but logs and other artifacts MUST still
+be reviewed for sensitive data before sharing or committing them.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Repository Conventions
+Contributors and automated agents MUST follow `AGENTS.md` for project layout,
+implementation, testing, and review conventions. For approval behavior, the
+assignment-specific approval rules in `AGENTS.md` take precedence over its
+generic role examples.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Project Constraints
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+- The project is an ASP.NET Core 8 Web API with a small static web UI.
+- `InvoiceApp.Domain` owns lifecycle and approval rules and MUST NOT depend on
+  web or storage code.
+- Controllers MUST follow the repository's controller, request-record, role
+  authorization, and error-handling conventions in `AGENTS.md`.
+- Approval business roles and thresholds MUST follow the assignment-specific
+  rules in `AGENTS.md`; roles MUST NOT be inferred by mapping unrelated roles.
+- End-to-end tests MUST use page objects and accessible role- or label-based
+  locators, not CSS or XPath selectors.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+- Every new business rule or endpoint MUST include tests following the
+  conventions in `AGENTS.md`.
+- Tests MUST use `FakeInvoiceRepository` for invoice service rules and verify
+  state preservation on rejected operations.
+- The full suite, `dotnet test backend/InvoiceApp.sln`, MUST pass before a
+  commit.
+- Review findings in pull request descriptions MUST each have one disposition:
+  fixed, dismissed with a reason, or deferred with a reason.
+- Interaction logs MUST be reviewed for sensitive data before sharing or
+  committing them.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution governs project-wide engineering principles. Amendments MUST
+be made in this file, reviewed for consistency with `AGENTS.md`, and validated
+against the project. Version numbers follow semantic versioning: MAJOR for
+backward-incompatible changes to principles, MINOR for new or materially
+expanded principles or sections, and PATCH for non-semantic clarifications.
+Contributors and reviewers MUST check changes for compliance with this
+constitution. If a generic convention conflicts with an approval-specific
+assignment rule, the approval-specific rule governs.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: TODO(RATIFICATION_DATE): confirm original adoption date | **Last Amended**: 2026-10-29
