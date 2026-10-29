@@ -22,7 +22,7 @@
 
 **Purpose**: Provide an atomic repository boundary that both approval steps can use without moving business policy out of Domain.
 
-- [ ] T003 Add an atomic invoice-update operation to `backend/src/InvoiceApp.Domain/IInvoiceRepository.cs` and implement its locked read-transition-write behavior in `backend/src/InvoiceApp.Api/InMemoryInvoiceRepository.cs` and `backend/tests/InvoiceApp.Tests/FakeInvoiceRepository.cs`.
+- [x] T003 Add an atomic invoice-update operation to `backend/src/InvoiceApp.Domain/IInvoiceRepository.cs` and implement its locked read-transition-write behavior in `backend/src/InvoiceApp.Api/InMemoryInvoiceRepository.cs` and `backend/tests/InvoiceApp.Tests/FakeInvoiceRepository.cs`.
 
 **Checkpoint**: Repository atomicity is available; approval decisions and validation remain in `ApprovalService`.
 
@@ -34,16 +34,16 @@
 
 ### Tests for User Story 1 and User Story 3
 
-- [ ] T004 [US1] Add xUnit cases in `backend/tests/InvoiceApp.Tests/ApprovalServiceTests.cs` for Manager and Director threshold boundaries and valid lower-value Director approvals, including clear reasons and complete invoice-state preservation for over-limit attempts. Include a case proving approval of an already-decided invoice is refused with a clear reason and leaves status, decision fields, and approvals unchanged.
-- [ ] T005 [US3] Add xUnit cases in `backend/tests/InvoiceApp.Tests/ApprovalServiceTests.cs` proving Admin and legacy Approver cannot create or count toward approvals and leave status, decision fields, and approvals unchanged.
-- [ ] T021 [US3] Add a project reference to `backend/src/InvoiceApp.Api/InvoiceApp.Api.csproj` in `backend/tests/InvoiceApp.Tests/InvoiceApp.Tests.csproj`, then add `backend/tests/InvoiceApp.Tests/ApprovalsControllerAuthorizationTests.cs`. Inspect the `ApprovalsController` class- and action-level `RequireRoleAttribute` metadata and execute the actual filters with an `ActionExecutingContext` containing each role's `UserSession`. Verify Approve allows Manager and Director and denies Approver and Admin without invoking the action or changing invoice state; verify Reject allows Manager, Director, Approver, and Admin for invoices at both low and high amounts, with the authorization outcome independent of invoice amount.
+- [x] T004 [US1] Add xUnit cases in `backend/tests/InvoiceApp.Tests/ApprovalServiceTests.cs` for Manager and Director threshold boundaries and valid lower-value Director approvals, including clear reasons and complete invoice-state preservation for over-limit attempts. Include a case proving approval of an already-decided invoice is refused with a clear reason and leaves status, decision fields, and approvals unchanged.
+- [x] T005 [US3] Add xUnit cases in `backend/tests/InvoiceApp.Tests/ApprovalServiceTests.cs` proving Admin and legacy Approver cannot create or count toward approvals and leave status, decision fields, and approvals unchanged.
+- [x] T021 [US3] Add a project reference to `backend/src/InvoiceApp.Api/InvoiceApp.Api.csproj` in `backend/tests/InvoiceApp.Tests/InvoiceApp.Tests.csproj`, then add `backend/tests/InvoiceApp.Tests/ApprovalsControllerAuthorizationTests.cs`. Inspect the `ApprovalsController` class- and action-level `RequireRoleAttribute` metadata and execute the actual filters with an `ActionExecutingContext` containing each role's `UserSession`. Verify Approve allows Manager and Director and denies Approver and Admin without invoking the action or changing invoice state; verify Reject allows Manager, Director, Approver, and Admin for invoices at both low and high amounts, with the authorization outcome independent of invoice amount.
 
 ### Implementation for User Story 1 and User Story 3
 
-- [ ] T006 [P] [US3] Update `backend/src/InvoiceApp.Api/appsettings.json` with `demo.manager` / Manager and `demo.director` / Director demo users, retaining the existing Admin account.
-- [ ] T007 [P] [US1] Update `backend/src/InvoiceApp.Domain/ApprovalService.cs` to accept trusted username and role and enforce inclusive 50,000 Manager and 500,000 Director single-approval limits, rejecting ineligible roles before mutation.
-- [ ] T008 [US3] Update `backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs` to pass signed-in username and role to the service; authorize the Approve endpoint for Manager and Director only, and the Reject endpoint for Manager, Director, Approver, and Admin with no invoice amount limit.
-- [ ] T009 [US1] Run `dotnet test backend/InvoiceApp.sln` and verify Step A threshold, endpoint role-matrix, error-reason, and state-preservation cases pass.
+- [x] T006 [P] [US3] Update `backend/src/InvoiceApp.Api/appsettings.json` with `demo.manager` / Manager and `demo.director` / Director demo users, retaining the existing Admin account.
+- [x] T007 [P] [US1] Update `backend/src/InvoiceApp.Domain/ApprovalService.cs` to accept trusted username and role and enforce inclusive 50,000 Manager and 500,000 Director single-approval limits, rejecting ineligible roles before mutation.
+- [x] T008 [US3] Update `backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs` to pass signed-in username and role to the service; authorize the Approve endpoint for Manager and Director only, and the Reject endpoint for Manager, Director, Approver, and Admin with no invoice amount limit.
+- [x] T009 [US1] Run `dotnet test backend/InvoiceApp.sln` and verify Step A threshold, endpoint role-matrix, error-reason, and state-preservation cases pass.
 - [ ] T010 [US1] Commit the independently tested Step A changes, including all T003 atomic repository changes, in `backend/src/InvoiceApp.Domain/ApprovalService.cs`, `backend/src/InvoiceApp.Domain/IInvoiceRepository.cs`, `backend/src/InvoiceApp.Api/InMemoryInvoiceRepository.cs`, `backend/tests/InvoiceApp.Tests/FakeInvoiceRepository.cs`, `backend/src/InvoiceApp.Api/appsettings.json`, `backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs`, `backend/tests/InvoiceApp.Tests/InvoiceApp.Tests.csproj`, `backend/tests/InvoiceApp.Tests/ApprovalServiceTests.cs`, and `backend/tests/InvoiceApp.Tests/ApprovalsControllerAuthorizationTests.cs`.
 
 **Checkpoint**: Step A is independently tested and committed with single-approver limits and roles in place.
