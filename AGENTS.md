@@ -36,3 +36,23 @@ Invoice approval demo app: ASP.NET Core 8 Web API with a small static web UI.
 
 - Commit real credentials, tokens or customer data.
 - Add business logic to `Program.cs` or controllers.
+
+## Approval limits assignment
+
+- The assignment's approval business roles are Manager and Director. Do not treat the API's existing `Approver` role as a synonym for either; Admin must not count as an approver. If the API only exposes `Approver` and `Admin`, update identity/role flow and authorization as part of implementing this feature rather than inventing a mapping.
+- A Manager may single-approve an invoice up to and including 50,000.
+- A Director may single-approve an invoice up to and including 500,000, including invoices below 50,000.
+- An invoice above 500,000 requires two distinct approvers. The first approver may be a Manager or Director; the second approver must be a Director.
+- The same user must never count as both approvers for one invoice. An Admin does not count as an approver for these limits.
+- Validate the approver's role, the invoice amount, and any existing approval before changing invoice state. A rejected attempt must return a clear reason and leave the invoice status and recorded approvals unchanged.
+- Keep these rules in `InvoiceApp.Domain`. Controllers pass the signed-in user's identity and role to the service; they do not implement approval-limit business rules.
+- Test the exact 50,000 and 500,000 boundaries and amounts just above them. For every rule, assert successful and rejected outcomes, including status, approvals, and error messages. Include tests for duplicate approvers and Admin not counting.
+
+## Assignment workflow and AI interaction logging
+
+- Before starting each phase of the assignment, write its name to `logs/current-stage.txt`. Use clear stage names such as `setup`, `specification`, `single-approver-limits`, `two-approver-rule`, `verification`, `review`, and `hand-in`.
+- Keep the Copilot hook configuration and logger in `.github/hooks/`. Hook events append JSONL records to `logs/ai-interactions.jsonl`; include the event payload and use `logs/current-stage.txt` as the stage when the event does not supply one.
+- Hooks can only capture fields present in their event payload. Do not invent model, skill, human-decision, review, or test details; add unavailable evidence manually to the log when needed.
+- Review interaction logs for secrets or sensitive data before sharing or committing them.
+- Run `dotnet test backend/InvoiceApp.sln` before every commit.
+- In the pull request description, give every review finding exactly one verdict: fixed, dismissed with a reason, or deferred with a reason.
