@@ -1,0 +1,47 @@
+﻿Command: & "$env:USERPROFILE\.dotnet\tools\dotnet-stryker.exe"
+Working directory: backend\tests\InvoiceApp.Tests
+Baseline: before feature implementation
+
+
+   _____ _              _               _   _ ______ _______  
+  / ____| |            | |             | \ | |  ____|__   __| 
+ | (___ | |_ _ __ _   _| | _____ _ __  |  \| | |__     | |    
+  \___ \| __| '__| | | | |/ / _ \ '__| | . ` |  __|    | |    
+  ____) | |_| |  | |_| |   <  __/ |    | |\  | |____   | |    
+ |_____/ \__|_|   \__, |_|\_\___|_| (_)|_| \_|______|  |_|    
+                   __/ |                                      
+                  |___/                                       
+
+
+Version: 4.13.0
+
+A new version of Stryker.NET (5.0.0) is available. Please consider upgrading 
+using `dotnet tool update -g dotnet-stryker`
+
+[22:45:29 INF] Analysis starting.
+[22:45:29 INF] Analyzing 1 test project(s).
+[22:45:35 INF] Found project C:\Assignment\ai-sdlc-demo-app\backend\src\InvoiceApp.Domain\InvoiceApp.Domain.csproj to mutate.
+[22:45:35 INF] Analysis complete.
+[22:45:35 INF] Building test project C:\Assignment\ai-sdlc-demo-app\backend\tests\InvoiceApp.Tests\InvoiceApp.Tests.csproj (1/1)
+[22:45:36 INF] Building project InvoiceApp.Tests.csproj using dotnet build InvoiceApp.Tests.csproj -c Debug --property:Platform=AnyCPU (directory C:\Assignment\ai-sdlc-demo-app\backend\tests\InvoiceApp.Tests.)
+[22:45:46 INF] Number of tests found: 7 for project C:\Assignment\ai-sdlc-demo-app\backend\src\InvoiceApp.Domain\InvoiceApp.Domain.csproj. Initial test run started.
+[22:45:50 INF] 51 mutants created
+[22:45:50 INF] Capture mutant coverage using 'CoverageBasedTest' mode.
+Hint: by passing "--open-report or -o" the report will open automatically and 
+update the report in real-time.
+[22:45:51 INF] 17    mutants got status NoCoverage.   Reason: Not covered by any test.
+[22:45:51 INF] 12    mutants got status Ignored.      Reason: Removed by block already covered filter
+[22:45:51 INF] 29    total mutants are skipped for the above mentioned reasons
+[22:45:51 INF] 22    total mutants will be tested
+
+Killed:   12
+Survived: 10
+Timeout:   0
+
+Your html report has been generated at:
+file://C:/Assignment/ai-sdlc-demo-app/backend/tests/InvoiceApp.Tests/StrykerOutp
+ut/2026-10-29.22-45-28/reports/mutation-report.html
+You can open it in your browser of choice.
+[22:46:01 INF] Time Elapsed 00:00:32.5500683
+[22:46:01 INF] The final mutation score is 30.77 %
+
