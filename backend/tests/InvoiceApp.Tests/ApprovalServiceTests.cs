@@ -37,6 +37,24 @@ public class ApprovalServiceTests
     }
 
     [Fact]
+    public void Submit_RefusalPreservesInvoiceAndReportsExactReason()
+    {
+        var invoice = InvoiceWith("INV-1", InvoiceStatus.Approved);
+        invoice.DecidedBy = "previous.approver";
+        invoice.DecidedAt = new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc);
+        invoice.DecisionNote = "Already approved";
+        var (service, repository) = ServiceAndRepositoryFor(invoice);
+
+        var exception = Assert.Throws<InvalidOperationException>(() => service.Submit("INV-1"));
+
+        Assert.Equal("Invoice INV-1 is Approved; only drafts can be submitted.", exception.Message);
+        Assert.Equal(InvoiceStatus.Approved, repository.GetById("INV-1")!.Status);
+        Assert.Equal("previous.approver", repository.GetById("INV-1")!.DecidedBy);
+        Assert.Equal(invoice.DecidedAt, repository.GetById("INV-1")!.DecidedAt);
+        Assert.Equal("Already approved", repository.GetById("INV-1")!.DecisionNote);
+    }
+
+    [Fact]
     public void Approve_ManagerWithinLimit_SetsStatusDecisionMakerAndTimestamp()
     {
         var service = ServiceFor(InvoiceWith("INV-1", InvoiceStatus.PendingApproval));
@@ -68,6 +86,64 @@ public class ApprovalServiceTests
             "Manager",
             "demo.manager",
             "Manager approval limit is 50000; invoice amount is 50000.01.");
+    }
+
+    [Fact]
+    public void Approve_ManagerAboveLimit_UsesInvariantAmountFormatting()
+    {
+        var invoice = InvoiceWith("INV-1", InvoiceStatus.PendingApproval, 50_000.01m);
+        var (service, repository) = ServiceAndRepositoryFor(invoice);
+
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => service.Approve("INV-1", "demo.manager", "Manager"));
+
+        Assert.Equal(
+            "Manager approval limit is 50000; invoice amount is 50000.01.",
+            exception.Message);
+        Assert.Equal(InvoiceStatus.PendingApproval, repository.GetById("INV-1")!.Status);
+        Assert.Null(repository.GetById("INV-1")!.DecidedBy);
+        Assert.Null(repository.GetById("INV-1")!.DecidedAt);
+        Assert.Null(repository.GetById("INV-1")!.DecisionNote);
+        Assert.Empty(repository.GetById("INV-1")!.Approvals);
+    }
+
+    [Fact]
+    public void Approve_ManagerAboveLimit_RoundsDisplayedAmountToTwoDecimalPlaces()
+    {
+        var invoice = InvoiceWith("INV-1", InvoiceStatus.PendingApproval, 50_000.123m);
+        var (service, repository) = ServiceAndRepositoryFor(invoice);
+
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => service.Approve("INV-1", "demo.manager", "Manager"));
+
+        Assert.Equal(
+            "Manager approval limit is 50000; invoice amount is 50000.12.",
+            exception.Message);
+        Assert.Equal(InvoiceStatus.PendingApproval, repository.GetById("INV-1")!.Status);
+        Assert.Null(repository.GetById("INV-1")!.DecidedBy);
+        Assert.Null(repository.GetById("INV-1")!.DecidedAt);
+        Assert.Null(repository.GetById("INV-1")!.DecisionNote);
+        Assert.Empty(repository.GetById("INV-1")!.Approvals);
+    }
+
+    [Fact]
+    public void Approve_InvoiceWithinLimitWithPriorApproval_RefusesWithoutChangingInvoice()
+    {
+        var invoice = InvoiceWith("INV-1", InvoiceStatus.PendingApproval);
+        invoice.Approvals.Add(new InvoiceApproval(
+            "previous.manager",
+            "Manager",
+            1,
+            new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc)));
+        var (service, repository) = ServiceAndRepositoryFor(invoice);
+
+        AssertApprovalRefusedWithoutMutation(
+            service,
+            repository,
+            "INV-1",
+            "demo.director",
+            "Director",
+            "An invoice within the single-approval limit cannot have prior approval records.");
     }
 
     [Fact]
@@ -159,7 +235,10 @@ public class ApprovalServiceTests
     {
         var service = ServiceFor();
 
-        Assert.Throws<KeyNotFoundException>(() => service.Approve("INV-404", "demo.manager", "Manager"));
+        var exception = Assert.Throws<KeyNotFoundException>(
+            () => service.Approve("INV-404", "demo.manager", "Manager"));
+
+        Assert.Equal("Invoice INV-404 was not found.", exception.Message);
     }
 
     [Fact]
@@ -223,6 +302,79 @@ public class ApprovalServiceTests
                 Assert.Equal(2, secondApproval.Sequence);
             });
         Assert.Equal(InvoiceStatus.Approved, repository.GetById("INV-1")!.Status);
+    }
+
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public void Approve_HighValueInvoiceWithPartialDecisionDetails_RefusesWithoutChangingInvoice(
+        bool hasDecidedBy,
+        bool hasDecidedAt)
+    {
+        var invoice = InvoiceWith("INV-1", InvoiceStatus.PendingApproval, 500_000.01m);
+        invoice.DecidedBy = hasDecidedBy ? "existing.approver" : null;
+        invoice.DecidedAt = hasDecidedAt
+            ? new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc)
+            : null;
+        invoice.DecisionNote = "Existing decision note";
+        var (service, repository) = ServiceAndRepositoryFor(invoice);
+
+        AssertApprovalRefusedWithoutMutation(
+            service,
+            repository,
+            "INV-1",
+            "demo.manager",
+            "Manager",
+            "A high-value invoice cannot have final decision details before both approvals are recorded.");
+    }
+
+    [Fact]
+    public void Approve_HighValueInvoiceWithMultiplePriorApprovals_RefusesWithoutChangingInvoice()
+    {
+        var invoice = InvoiceWith("INV-1", InvoiceStatus.PendingApproval, 500_000.01m);
+        invoice.Approvals.Add(new InvoiceApproval(
+            "first.manager",
+            "Manager",
+            1,
+            new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc)));
+        invoice.Approvals.Add(new InvoiceApproval(
+            "second.director",
+            "Director",
+            2,
+            new DateTime(2026, 1, 3, 3, 4, 5, DateTimeKind.Utc)));
+        var (service, repository) = ServiceAndRepositoryFor(invoice);
+
+        AssertApprovalRefusedWithoutMutation(
+            service,
+            repository,
+            "INV-1",
+            "third.director",
+            "Director",
+            "A high-value invoice can have only one prior approval while awaiting its second approver.");
+    }
+
+    [Theory]
+    [InlineData(2, "Manager")]
+    [InlineData(1, "Admin")]
+    public void Approve_HighValueInvoiceWithInvalidFirstApproval_RefusesWithoutChangingInvoice(
+        int firstSequence,
+        string firstRole)
+    {
+        var invoice = InvoiceWith("INV-1", InvoiceStatus.PendingApproval, 500_000.01m);
+        invoice.Approvals.Add(new InvoiceApproval(
+            "first.approver",
+            firstRole,
+            firstSequence,
+            new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc)));
+        var (service, repository) = ServiceAndRepositoryFor(invoice);
+
+        AssertApprovalRefusedWithoutMutation(
+            service,
+            repository,
+            "INV-1",
+            "second.director",
+            "Director",
+            "The existing first approval is invalid; it must be from a Manager or Director.");
     }
 
     [Fact]
@@ -319,20 +471,58 @@ public class ApprovalServiceTests
     [Fact]
     public void Reject_RecordsReasonAndApprover()
     {
-        var service = ServiceFor(InvoiceWith("INV-1", InvoiceStatus.PendingApproval));
+        var (service, repository) = ServiceAndRepositoryFor(
+            InvoiceWith("INV-1", InvoiceStatus.PendingApproval));
 
         var result = service.Reject("INV-1", "demo.approver", "Duplicate invoice");
 
         Assert.Equal(InvoiceStatus.Rejected, result.Status);
+        Assert.Equal("demo.approver", result.DecidedBy);
+        Assert.NotNull(result.DecidedAt);
         Assert.Equal("Duplicate invoice", result.DecisionNote);
+        Assert.Empty(result.Approvals);
+        Assert.Equal(InvoiceStatus.Rejected, repository.GetById("INV-1")!.Status);
     }
 
     [Fact]
     public void Reject_RequiresAReason()
     {
-        var service = ServiceFor(InvoiceWith("INV-1", InvoiceStatus.PendingApproval));
+        var invoice = InvoiceWith("INV-1", InvoiceStatus.PendingApproval);
+        var (service, repository) = ServiceAndRepositoryFor(invoice);
 
-        Assert.Throws<ArgumentException>(() => service.Reject("INV-1", "demo.approver", "  "));
+        var exception = Assert.Throws<ArgumentException>(
+            () => service.Reject("INV-1", "demo.approver", "  "));
+
+        Assert.Equal("A reason is required to reject an invoice. (Parameter 'reason')", exception.Message);
+        Assert.Equal(InvoiceStatus.PendingApproval, repository.GetById("INV-1")!.Status);
+        Assert.Null(repository.GetById("INV-1")!.DecidedBy);
+        Assert.Null(repository.GetById("INV-1")!.DecidedAt);
+        Assert.Null(repository.GetById("INV-1")!.DecisionNote);
+        Assert.Empty(repository.GetById("INV-1")!.Approvals);
+    }
+
+    [Fact]
+    public void Reject_InvoiceThatIsNotPending_RefusesWithoutChangingInvoice()
+    {
+        var invoice = InvoiceWith("INV-1", InvoiceStatus.Approved);
+        invoice.DecidedBy = "previous.approver";
+        invoice.DecidedAt = new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc);
+        invoice.DecisionNote = "Previously approved";
+        invoice.Approvals.Add(new InvoiceApproval(
+            "previous.approver",
+            "Director",
+            1,
+            new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc)));
+        var originalState = Copy(invoice);
+        var (service, repository) = ServiceAndRepositoryFor(invoice);
+
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => service.Reject("INV-1", "demo.approver", "Duplicate invoice"));
+
+        Assert.Equal(
+            "Invoice INV-1 is Approved; only pending invoices can be decided.",
+            exception.Message);
+        AssertInvoiceStateEqual(originalState, repository.GetById("INV-1")!);
     }
 
     private static void AssertApprovalRefusedWithoutMutation(
