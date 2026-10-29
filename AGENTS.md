@@ -50,9 +50,9 @@ Invoice approval demo app: ASP.NET Core 8 Web API with a small static web UI.
 
 ## Assignment workflow and AI interaction logging
 
-- Before starting each phase of the assignment, write its name to `logs/current-stage.txt`. Use clear stage names such as `setup`, `specification`, `single-approver-limits`, `two-approver-rule`, `verification`, `review`, and `hand-in`.
-- Keep the Copilot hook configuration and logger in `.github/hooks/`. Hook events append JSONL records to `logs/ai-interactions.jsonl`; include the event payload and use `logs/current-stage.txt` as the stage when the event does not supply one.
-- Hooks can only capture fields present in their event payload. Do not invent model, skill, human-decision, review, or test details; add unavailable evidence manually to the log when needed.
+- Before starting each phase of the assignment, update `logs/current-stage.txt` to that phase. Do not leave it at `setup` after setup is complete. Use clear stage names such as `setup`, `specification`, `single-approver-limits`, `two-approver-rule`, `verification`, `review`, and `hand-in`.
+- Keep the Copilot hook configuration and logger in `.github/hooks/`. Hook events append JSONL records to `logs/ai-interactions.jsonl`; include the original event payload and promote useful event details (session, tool, tool arguments/results, and stop reason) to top-level fields. `stage_source` identifies whether the stage came from the event payload or `logs/current-stage.txt`.
+- Hooks can only capture fields present in their event payload. Keep unavailable evidence explicitly marked; do not invent model, skill, human-decision, review, or test details. Add those details manually only when verified.
 - Review interaction logs for secrets or sensitive data before sharing or committing them.
 - Run `dotnet test backend/InvoiceApp.sln` before every commit.
 - In the pull request description, give every review finding exactly one verdict: fixed, dismissed with a reason, or deferred with a reason.

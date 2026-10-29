@@ -57,13 +57,22 @@ if ($Event -eq "userPromptSubmitted") {
 }
 
 $stage = Get-Field -InputObject $payload -Names @("stage")
+$stageSource = "payload"
 if ([string]::IsNullOrWhiteSpace([string]$stage)) {
     $stagePath = Join-Path (Get-Location) "logs/current-stage.txt"
     if (Test-Path -LiteralPath $stagePath) {
         $stage = (Get-Content -LiteralPath $stagePath -Raw).Trim()
         if ([string]::IsNullOrWhiteSpace($stage)) {
             $stage = $null
+            $stageSource = "unavailable"
         }
+        else {
+            $stageSource = "current-stage.txt"
+        }
+    }
+    else {
+        $stage = $null
+        $stageSource = "unavailable"
     }
 }
 
@@ -79,6 +88,9 @@ $record = [ordered]@{
     timestamp = $timestamp.ToString("o")
     event = $Event
     stage = $stage
+    stage_source = $stageSource
+    session_id = Get-Field -InputObject $payload -Names @("sessionId", "session_id")
+    working_directory = Get-Field -InputObject $payload -Names @("cwd", "workingDirectory", "working_directory")
     agent = $agent
     agent_name = $agentName
     agent_type = $agentType
@@ -89,6 +101,11 @@ $record = [ordered]@{
     parent_task = Get-Field -InputObject $payload -Names @("parent_task", "parentTask")
     context = Get-Field -InputObject $payload -Names @("context") -Default "AI in SDLC Assignment"
     request = $request
+    tool_name = $toolName
+    tool_arguments = Get-Field -InputObject $payload -Names @("toolArgs", "toolArguments", "tool_args", "arguments")
+    tool_result = Get-Field -InputObject $payload -Names @("toolResult", "tool_result", "result")
+    stop_reason = Get-Field -InputObject $payload -Names @("stopReason", "stop_reason")
+    transcript_path = Get-Field -InputObject $payload -Names @("transcriptPath", "transcript_path")
     skills_used = @(Get-Field -InputObject $payload -Names @("skills_used", "skillsUsed") -Default @())
     subagents_used = @(Get-Field -InputObject $payload -Names @("subagents_used", "subagentsUsed") -Default @())
     mcp_tools_used = @(Get-Field -InputObject $payload -Names @("mcp_tools_used", "mcpToolsUsed") -Default @())
@@ -101,6 +118,14 @@ $record = [ordered]@{
     artifacts = @(Get-Field -InputObject $payload -Names @("artifacts") -Default @())
     event_payload = $payload
 }
+
+$record["unavailable_evidence"] = @(
+    foreach ($field in @("model", "skills_used", "human_decision", "action_verification")) {
+        if ($null -eq $record[$field] -or ($record[$field] -is [array] -and $record[$field].Count -eq 0)) {
+            $field
+        }
+    }
+)
 
 New-Item -ItemType Directory -Force -Path "logs" | Out-Null
 $jsonLine = $record | ConvertTo-Json -Depth 50 -Compress
