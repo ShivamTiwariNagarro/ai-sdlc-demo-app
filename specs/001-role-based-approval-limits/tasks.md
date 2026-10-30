@@ -73,9 +73,9 @@
 **Purpose**: Demonstrate the refused approval attempt reason through the UI and capture end-to-end and post-change mutation evidence.
 
 - [x] T017 [P] Ensure `backend/src/InvoiceApp.Api/wwwroot/app.js` displays the API reason for a refused approval attempt in the existing accessible decision alert in `backend/src/InvoiceApp.Api/wwwroot/index.html`, without presenting the attempt as success.
-- [ ] T018 Add a page object in `e2e/pages/InvoiceApprovalsPage.ts` using Playwright role/label locators (`getByRole`, `getByLabel`) for sign-in, invoice submission, approval, and reading the decision alert.
-- [ ] T019 Add one Playwright test in `e2e/tests/approval-limits.spec.ts` that signs in as `demo.manager`, submits an invoice above 50,000, attempts approval, and asserts via the page object that the refused approval attempt reason is shown and the invoice remains PendingApproval.
-- [ ] T020 Run `npm test` from `e2e/` and `dotnet test backend/InvoiceApp.sln`; record both results and the post-change `dotnet stryker` score from `backend/tests/InvoiceApp.Tests/` alongside the baseline in repository-root `ASSIGNMENT.md`.
+- [x] T018 Add a page object in `e2e/pages/InvoiceApprovalsPage.ts` using Playwright role/label locators (`getByRole`, `getByLabel`) for sign-in, invoice submission, approval, and reading the decision alert.
+- [x] T019 Add one Playwright test in `e2e/tests/approval-limits.spec.ts` that signs in as `demo.manager`, submits an invoice above 50,000, attempts approval, and asserts via the page object that the refused approval attempt reason is shown and the invoice remains PendingApproval.
+- [x] T020 Run `npm test` from `e2e/` and `dotnet test backend/InvoiceApp.sln`; record both results and the post-change `dotnet stryker` score from `backend/tests/InvoiceApp.Tests/` alongside the baseline in repository-root `ASSIGNMENT.md`.
 
 ## Dependencies & Execution Order
 
