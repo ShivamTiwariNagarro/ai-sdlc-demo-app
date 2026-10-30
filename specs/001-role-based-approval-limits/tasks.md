@@ -10,13 +10,13 @@
 
 **Purpose**: Commit the agreed specification artifacts as a distinct commit before implementation.
 
-- [ ] T001 Commit `specs/001-role-based-approval-limits/spec.md`, `specs/001-role-based-approval-limits/plan.md`, and `specs/001-role-based-approval-limits/tasks.md` together as a separate specification-artifact commit. This commit, the Step A commit, and the Step B commit provide at least three feature commits in total.
+- [x] T001 Commit `specs/001-role-based-approval-limits/spec.md`, `specs/001-role-based-approval-limits/plan.md`, and `specs/001-role-based-approval-limits/tasks.md` together as a separate specification-artifact commit. This commit, the Step A commit, and the Step B commit provide at least three feature commits in total.
 
 ## Phase 2: Setup
 
 **Purpose**: Capture the pre-change mutation baseline before feature code is modified.
 
-- [ ] T002 Run `dotnet stryker` from `backend/tests/InvoiceApp.Tests/` using dotnet-stryker 4.13.0 before implementation; record the command and baseline score in the repository-root `ASSIGNMENT.md`.
+- [x] T002 Run `dotnet stryker` from `backend/tests/InvoiceApp.Tests/` using dotnet-stryker 4.13.0 before implementation; record the command and baseline score in the repository-root `ASSIGNMENT.md`.
 
 ## Phase 3: Foundational
 
@@ -44,7 +44,7 @@
 - [x] T007 [P] [US1] Update `backend/src/InvoiceApp.Domain/ApprovalService.cs` to accept trusted username and role and enforce inclusive 50,000 Manager and 500,000 Director single-approval limits, rejecting ineligible roles before mutation.
 - [x] T008 [US3] Update `backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs` to pass signed-in username and role to the service; authorize the Approve endpoint for Manager and Director only, and the Reject endpoint for Manager, Director, Approver, and Admin with no invoice amount limit.
 - [x] T009 [US1] Run `dotnet test backend/InvoiceApp.sln` and verify Step A threshold, endpoint role-matrix, error-reason, and state-preservation cases pass.
-- [ ] T010 [US1] Commit the independently tested Step A changes, including all T003 atomic repository changes, in `backend/src/InvoiceApp.Domain/ApprovalService.cs`, `backend/src/InvoiceApp.Domain/IInvoiceRepository.cs`, `backend/src/InvoiceApp.Api/InMemoryInvoiceRepository.cs`, `backend/tests/InvoiceApp.Tests/FakeInvoiceRepository.cs`, `backend/src/InvoiceApp.Api/appsettings.json`, `backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs`, `backend/tests/InvoiceApp.Tests/InvoiceApp.Tests.csproj`, `backend/tests/InvoiceApp.Tests/ApprovalServiceTests.cs`, and `backend/tests/InvoiceApp.Tests/ApprovalsControllerAuthorizationTests.cs`.
+- [x] T010 [US1] Commit the independently tested Step A changes, including all T003 atomic repository changes, in `backend/src/InvoiceApp.Domain/ApprovalService.cs`, `backend/src/InvoiceApp.Domain/IInvoiceRepository.cs`, `backend/src/InvoiceApp.Api/InMemoryInvoiceRepository.cs`, `backend/tests/InvoiceApp.Tests/FakeInvoiceRepository.cs`, `backend/src/InvoiceApp.Api/appsettings.json`, `backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs`, `backend/tests/InvoiceApp.Tests/InvoiceApp.Tests.csproj`, `backend/tests/InvoiceApp.Tests/ApprovalServiceTests.cs`, and `backend/tests/InvoiceApp.Tests/ApprovalsControllerAuthorizationTests.cs`.
 
 **Checkpoint**: Step A is independently tested and committed with single-approver limits and roles in place.
 
