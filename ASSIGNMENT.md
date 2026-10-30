@@ -26,7 +26,7 @@ Implemented role-based invoice approval limits in the ASP.NET Core invoice demo:
 
 | Check | Result |
 |---|---|
-| `dotnet test backend\InvoiceApp.sln` | Passed: 46 tests |
+| `dotnet test backend\InvoiceApp.sln` | Passed: 48 tests |
 | `cd e2e; npm test` | Passed: 1 Playwright test |
 | Stryker baseline, before implementation | 30.77% |
 | Stryker final, after implementation and focused tests | 82.83% |
@@ -40,9 +40,40 @@ Stryker was run with dotnet-stryker 4.13.0 against `InvoiceApp.Domain`. The base
 
 ## Review findings and verdicts
 
-- **fixed** — Updated `AGENTS.md` to specify that only Manager and Director may approve; Admin and the legacy Approver role cannot approve.
-- **fixed** — Standardized review verdict wording as “fixed,” “dismissed with a reason,” or “deferred with a reason.”
-- **fixed** — Added an explicit “Admin does not count as an approver” check to the PR review skill and reviewer agent.
+| Finding | Verdict | Disposition |
+|---|---|---|
+| Approval-role guidance needed to distinguish Manager and Director from Admin and the legacy Approver role. | **fixed** | Updated `AGENTS.md` to state the eligible approval roles and that Admin and Approver cannot approve or count toward an approval. |
+| Review guidance needed consistent, explicit verdicts. | **fixed** | Standardized verdicts as “fixed,” “dismissed with a reason,” or “deferred with a reason.” |
+| The review checklist needed to verify that Admin does not count as an approver. | **fixed** | Added the check to the `review-pr` skill and reviewer agent. |
+
+## Agents and sub-agents
+
+Four workspace agents were used at their corresponding stages:
+
+| Agent | Stage and contribution |
+|---|---|
+| `spec-writer` | Specification stage: turned the approval rules into testable requirements and edge cases. |
+| `implementer` | Implementation and UI verification stages: implemented the approval flow and wrote the Playwright test for the Manager refusal experience. |
+| `test-writer` | Test and mutation-analysis stages: added and refined xUnit approval-rule tests against the mutation results. |
+| `reviewer` | Review stage: ran as a sub-agent, inspected the changes read-only, and refused edits as instructed by its agent configuration. |
+
+## Skills and hooks
+
+The three project-specific skills were `approval-rules`, `review-pr`, and `write-unit-tests`. The repository also contains Spec Kit skills `speckit-constitution`, `speckit-specify`, `speckit-clarify`, `speckit-plan`, `speckit-tasks`, `speckit-implement`, `speckit-analyze`, `speckit-checklist`, and `speckit-converge`; `speckit-taskstoissues` is deprecated. The recorded workflow used clarification, planning, task generation, and analysis guidance. The `/speckit-` commands initially fell back to the corresponding manual skill steps until the VS Code window was reloaded.
+
+The `.github/hooks/` logging hook records submitted prompts, tool use, and agent stop events in [logs/ai-interactions.jsonl](logs/ai-interactions.jsonl), including the event payload when available. It is an automatic activity log, not a complete project journal: human decisions and verified review and test evidence were added manually because the hook cannot infer them.
+
+## Model
+
+The hook log records the model field as `null`; the model used is not verifiable from the saved repository record. No model name is inferred here.
+
+## What worked and what did not
+
+- The spec-driven workflow provided useful artifacts and separated the two approval implementation steps. The slash commands were not initially available in the active VS Code window, so their manual skill workflows were used until the window was reloaded.
+- The first review pass was thin. Follow-up review guidance and a findings table made the role rules, verdicts, and Admin exclusion more explicit.
+- The baseline mutation run (30.77%) and final run (82.83%) exercised different code: the baseline was captured before the feature, and the final run included the implementation and its tests. The score change is not a controlled comparison of the same mutants.
+- The final run reported 17 `NoCoverage` mutants in `backend/src/InvoiceApp.Domain/DiscountCalculator.cs`. That calculator is unrelated to approval limits and was not changed; those mutants were left out of scope rather than adding unrelated tests or production changes. The final run also reported 31 ignored mutants and 6 compile-error mutants.
+- The automatic hook did not capture the model, human decisions, or a complete record of skill and review/test outcomes. Those gaps are stated rather than filled with guesses.
 
 ## Demo video
 
