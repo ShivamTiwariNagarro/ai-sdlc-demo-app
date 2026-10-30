@@ -40,11 +40,21 @@ Stryker was run with dotnet-stryker 4.13.0 against `InvoiceApp.Domain`. The base
 
 ## Review findings and verdicts
 
-| Finding | Verdict | Disposition |
-|---|---|---|
-| Approval-role guidance needed to distinguish Manager and Director from Admin and the legacy Approver role. | **fixed** | Updated `AGENTS.md` to state the eligible approval roles and that Admin and Approver cannot approve or count toward an approval. |
-| Review guidance needed consistent, explicit verdicts. | **fixed** | Standardized verdicts as “fixed,” “dismissed with a reason,” or “deferred with a reason.” |
-| The review checklist needed to verify that Admin does not count as an approver. | **fixed** | Added the check to the `review-pr` skill and reviewer agent. |
+| # | Finding | Verdict | Reason or commit |
+|---|---|---|---|
+| 1 | `tasks.md` items unchecked | Fixed | `a88d416`, `3e3a411` |
+| 2 | `AGENTS.md` demo accounts omitted Manager and Director | Fixed | `a88d416` |
+| 3 | Seed invoice `INV-1003` attributed to `demo.approver` | Dismissed | Historical sample data; it affects no rule. |
+| 4 | Defensive branches in `ApprovalService` that normal flows cannot reach | Dismissed | They reject malformed approval state before anything changes. |
+| 5 | Admin approving an already-decided invoice gets the “pending” reason | Dismissed | The pending check runs first by design. It is still refused with a clear reason and nothing changes. |
+| 6 | Reject after the first approval untested | Fixed | `2db4e11` (approval kept as audit history) |
+| 7 | No negative role test for Reject | Fixed | `2db4e11` (Clerk role gets 403, invoice unchanged) |
+
+### Setup-phase review by the reviewer sub-agent
+
+- **Fixed** — Updated `AGENTS.md` to make Manager and Director the only approval roles and clarify that Admin and legacy Approver cannot approve.
+- **Fixed** — Standardized review verdict wording as “fixed,” “dismissed with a reason,” or “deferred with a reason.”
+- **Fixed** — Added an explicit Admin-does-not-count-as-an-approver check to the `review-pr` skill and reviewer agent.
 
 ## Agents and sub-agents
 
@@ -65,7 +75,7 @@ The `.github/hooks/` logging hook records submitted prompts, tool use, and agent
 
 ## Model
 
-The hook log records the model field as `null`; the model used is not verifiable from the saved repository record. No model name is inferred here.
+The hook did not record the model. Copilot was used in Auto model mode, so the model could vary between requests. The user reports that the first chat displayed GPT-6 Luna; this is user-observed, not hook-recorded.
 
 ## What worked and what did not
 
