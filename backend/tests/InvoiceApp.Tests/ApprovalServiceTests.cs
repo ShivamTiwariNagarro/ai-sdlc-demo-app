@@ -485,6 +485,27 @@ public class ApprovalServiceTests
     }
 
     [Fact]
+    public void Reject_HighValueInvoice_RetainsExistingApprovalAsAuditHistory()
+    {
+        var (service, repository) = ServiceAndRepositoryFor(
+            InvoiceWith("INV-1", InvoiceStatus.PendingApproval, 500_001m));
+        var invoiceWithApproval = service.Approve("INV-1", "first.approver", "Manager");
+        var firstApproval = Assert.Single(invoiceWithApproval.Approvals);
+        const string reason = "Supporting documents are incomplete.";
+
+        var result = service.Reject("INV-1", "demo.director", reason);
+
+        Assert.Equal(InvoiceStatus.Rejected, result.Status);
+        Assert.Equal("demo.director", result.DecidedBy);
+        Assert.Equal(reason, result.DecisionNote);
+        Assert.Equal(firstApproval, Assert.Single(result.Approvals));
+
+        var rejectedInvoice = repository.GetById("INV-1")!;
+        Assert.Equal(InvoiceStatus.Rejected, rejectedInvoice.Status);
+        Assert.Equal(firstApproval, Assert.Single(rejectedInvoice.Approvals));
+    }
+
+    [Fact]
     public void Reject_RequiresAReason()
     {
         var invoice = InvoiceWith("INV-1", InvoiceStatus.PendingApproval);

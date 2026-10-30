@@ -52,6 +52,19 @@ public class ApprovalsControllerAuthorizationTests
         AssertInvoiceUnchanged(repository.GetById("INV-1")!);
     }
 
+    [Fact]
+    public void Reject_RefusesRoleOutsideAllowedSetWithoutChangingInvoice()
+    {
+        var (context, repository) = ExecuteFilters(nameof(ApprovalsController.Reject), "Clerk", 100m);
+
+        Assert.IsType<StatusCodeResult>(context.Result);
+        Assert.Equal(StatusCodes.Status403Forbidden, ((StatusCodeResult)context.Result!).StatusCode);
+        var invoice = repository.GetById("INV-1")!;
+        AssertInvoiceUnchanged(invoice);
+        Assert.Equal(100m, invoice.Amount);
+        Assert.Empty(invoice.Approvals);
+    }
+
     private static (ActionExecutingContext Context, FakeInvoiceRepository Repository) ExecuteFilters(
         string actionName,
         string role,
