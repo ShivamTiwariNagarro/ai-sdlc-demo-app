@@ -1,0 +1,47 @@
+﻿Command: & "$env:USERPROFILE\.dotnet\tools\dotnet-stryker.exe" --project InvoiceApp.Domain.csproj
+Working directory: backend\tests\InvoiceApp.Tests
+After feature implementation
+
+
+   _____ _              _               _   _ ______ _______  
+  / ____| |            | |             | \ | |  ____|__   __| 
+ | (___ | |_ _ __ _   _| | _____ _ __  |  \| | |__     | |    
+  \___ \| __| '__| | | | |/ / _ \ '__| | . ` |  __|    | |    
+  ____) | |_| |  | |_| |   <  __/ |    | |\  | |____   | |    
+ |_____/ \__|_|   \__, |_|\_\___|_| (_)|_| \_|______|  |_|    
+                   __/ |                                      
+                  |___/                                       
+
+
+Version: 4.13.0
+
+A new version of Stryker.NET (5.0.0) is available. Please consider upgrading 
+using `dotnet tool update -g dotnet-stryker`
+
+[23:48:31 INF] Analysis starting.
+[23:48:31 INF] Analyzing 1 test project(s).
+[23:48:42 INF] Found project C:\Assignment\ai-sdlc-demo-app\backend\src\InvoiceApp.Domain\InvoiceApp.Domain.csproj to mutate.
+[23:48:42 INF] Analysis complete.
+[23:48:42 INF] Building test project C:\Assignment\ai-sdlc-demo-app\backend\tests\InvoiceApp.Tests\InvoiceApp.Tests.csproj (1/1)
+[23:48:42 INF] Building project InvoiceApp.Tests.csproj using dotnet build InvoiceApp.Tests.csproj -c Debug --property:Platform=AnyCPU (directory C:\Assignment\ai-sdlc-demo-app\backend\tests\InvoiceApp.Tests.)
+[23:48:55 INF] Number of tests found: 35 for project C:\Assignment\ai-sdlc-demo-app\backend\src\InvoiceApp.Domain\InvoiceApp.Domain.csproj. Initial test run started.
+[23:49:00 INF] 136 mutants created
+[23:49:00 INF] Capture mutant coverage using 'CoverageBasedTest' mode.
+Hint: by passing "--open-report or -o" the report will open automatically and 
+update the report in real-time.
+[23:49:01 INF] 6     mutants got status CompileError. Reason: Mutant caused compile errors
+[23:49:01 INF] 25    mutants got status NoCoverage.   Reason: Not covered by any test.
+[23:49:01 INF] 31    mutants got status Ignored.      Reason: Removed by block already covered filter
+[23:49:01 INF] 62    total mutants are skipped for the above mentioned reasons
+[23:49:01 INF] 74    total mutants will be tested
+
+Killed:   65
+Survived:  9
+Timeout:   0
+
+Your html report has been generated at:
+file://C:/Assignment/ai-sdlc-demo-app/backend/tests/InvoiceApp.Tests/StrykerOutp
+ut/2026-10-29.23-48-30/reports/mutation-report.html
+You can open it in your browser of choice.
+[23:49:25 INF] Time Elapsed 00:00:53.8950238
+[23:49:25 INF] The final mutation score is 65.66 %

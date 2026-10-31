@@ -10,4 +10,7 @@ public class Invoice
     public string? DecidedBy { get; set; }
     public DateTime? DecidedAt { get; set; }
     public string? DecisionNote { get; set; }
+    public List<InvoiceApproval> Approvals { get; set; } = new();
 }
+
+public sealed record InvoiceApproval(string Username, string Role, int Sequence, DateTime ApprovedAt);

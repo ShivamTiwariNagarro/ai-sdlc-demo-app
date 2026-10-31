@@ -56,8 +56,41 @@ public class InMemoryInvoiceRepository : IInvoiceRepository
         }
     }
 
+    public Invoice? UpdateAtomically(string id, Action<Invoice> transition)
+    {
+        ArgumentNullException.ThrowIfNull(transition);
+
+        lock (_lock)
+        {
+            var index = _invoices.FindIndex(invoice => invoice.Id == id);
+            if (index < 0)
+            {
+                return null;
+            }
+
+            var updatedInvoice = Copy(_invoices[index]);
+            transition(updatedInvoice);
+            _invoices[index] = updatedInvoice;
+            return updatedInvoice;
+        }
+    }
+
     public bool Remove(string id)
     {
         lock (_lock) return _invoices.RemoveAll(i => i.Id == id) > 0;
     }
+
+    private static Invoice Copy(Invoice invoice) =>
+        new()
+        {
+            Id = invoice.Id,
+            CustomerName = invoice.CustomerName,
+            Amount = invoice.Amount,
+            Status = invoice.Status,
+            CreatedAt = invoice.CreatedAt,
+            DecidedBy = invoice.DecidedBy,
+            DecidedAt = invoice.DecidedAt,
+            DecisionNote = invoice.DecisionNote,
+            Approvals = invoice.Approvals.ToList()
+        };
 }

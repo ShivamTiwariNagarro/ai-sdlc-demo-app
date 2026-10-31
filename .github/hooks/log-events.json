@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "hooks": {
+    "userPromptSubmitted": [
+      {
+        "type": "command",
+        "powershell": "powershell -NoProfile -File .github/hooks/logevent.ps1 -Event userPromptSubmitted",
+        "cwd": "."
+      }
+    ],
+    "postToolUse": [
+      {
+        "type": "command",
+        "powershell": "powershell -NoProfile -File .github/hooks/logevent.ps1 -Event postToolUse",
+        "cwd": "."
+      }
+    ],
+    "subagentStop": [
+      {
+        "type": "command",
+        "powershell": "powershell -NoProfile -File .github/hooks/logevent.ps1 -Event subagentStop",
+        "cwd": "."
+      }
+    ],
+    "agentStop": [
+      {
+        "type": "command",
+        "powershell": "powershell -NoProfile -File .github/hooks/logevent.ps1 -Event agentStop",
+        "cwd": "."
+      }
+    ]
+  }
+}
