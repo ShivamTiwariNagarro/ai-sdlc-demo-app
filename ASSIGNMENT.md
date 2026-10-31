@@ -87,4 +87,4 @@ The hook did not record the model. Copilot was used in Auto model mode, so the m
 
 ## Demo video
 
-**TODO:** Upload the 8–10 minute demo video and replace this line with an accessible link. The recording should show a live test, mutation run, or end-to-end test.
+[AI recording-20261031_171505-Meeting Recording.mp4](https://nagarro-my.sharepoint.com/:v:/p/shivam_tiwari/IQDe_4cTwJGzQqnv28y-3AsgAfk9n2VZUylWamKZ4epmSUs?e=KJoIW9)
